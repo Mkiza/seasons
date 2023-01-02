@@ -1,17 +1,39 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import React from "react";
+import ReactDOM from "react-dom/client";
+import SeasonsDisplay from "./SeasonsDisplay";
+import Spinner from "./Spinner";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+class App extends React.Component {
+  state = { initial: null, lat: null, errorMessage: "" };
+  //Life cycle method, ran once good for data loading
+  componentDidMount() {
+    window.navigator.geolocation.getCurrentPosition(
+      (position) => this.setState({ lat: position.coords.latitude }),
+      (error) => this.setState({ errorMessage: error.message })
+    );
+  }
+
+  componentDidUpdate() {}
+
+  renderContent() {
+    if (this.state.errorMessage && !this.state.lat) {
+      return <div>Error: {this.state.errorMessage}</div>;
+    }
+    if (!this.state.errorMessage && this.state.lat) {
+      return <SeasonsDisplay lat={this.state.lat} />;
+    }
+    return <Spinner message="Pleace accept location reqest" />;
+  }
+
+  //we have to define render method
+  render() {
+    return <div className="border red">{this.renderContent()};</div>;
+  }
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
